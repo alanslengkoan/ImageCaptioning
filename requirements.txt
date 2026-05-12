@@ -1,0 +1,21 @@
+# ─────────────────────────────────────────────────────────────
+# requirements.txt
+# TESIS S2 - Image Captioning Aksara Lontara
+# Fine-Tuning BLIP | Bahasa Indonesia
+# ─────────────────────────────────────────────────────────────
+
+# Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Transformers & BLIP
+transformers>=4.35.0
+Pillow>=9.0.0
+
+# Evaluasi Metrik
+nltk>=3.8.1
+rouge-score>=0.1.2
+
+# Utilitas
+tqdm>=4.65.0
+numpy>=1.24.0
