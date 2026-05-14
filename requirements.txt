@@ -4,9 +4,9 @@
 # Fine-Tuning BLIP | Bahasa Indonesia
 # ─────────────────────────────────────────────────────────────
 
-# Deep Learning
-torch>=2.0.0
-torchvision>=0.15.0
+# Deep Learning (sudah terinstall di Google Colab)
+torch
+torchvision
 
 # Transformers & BLIP
 transformers>=4.35.0

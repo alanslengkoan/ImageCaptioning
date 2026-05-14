@@ -6,23 +6,28 @@
 ## 📁 Struktur Proyek
 
 ```
-aksara_lontara_blip/
-├── 1_prepare_dataset.py   → Persiapan & split dataset
-├── 2_train_blip.py        → Fine-tuning model BLIP
-├── 3_evaluate.py          → Evaluasi dengan BLEU, METEOR, ROUGE-L
-├── 4_inference.py         → Prediksi caption gambar baru
-├── requirements.txt       → Daftar library yang dibutuhkan
+ImageCaptioning/
+├── Image_Captioning_Aksara_Lontara.ipynb  → Notebook utama (Google Colab)
+├── requirements.txt                        → Daftar library
+├── README.md
 │
 ├── dataset/
-│   ├── images/            → Gambar aksara mentah (per karakter)
-│   │   ├── a/
-│   │   ├── ba/
-│   │   └── ... (19 karakter)
-│   ├── captions.json      → Caption per gambar (dibuat otomatis)
-│   └── processed/
+│   ├── images/            → Gambar aksara mentah (95 file PNG)
+│   │   ├── ltr-01.png     → a
+│   │   ├── ltr-02.png     → i
+│   │   ├── ltr-06.png     → ba
+│   │   └── ... (ltr-01 s/d ltr-95)
+│   ├── captions.json      → Caption per gambar (5 caption/gambar)
+│   └── processed/         → Hasil split (dibuat oleh script)
 │       ├── train/
+│       │   ├── images/
+│       │   └── captions_train.json
 │       ├── val/
+│       │   ├── images/
+│       │   └── captions_val.json
 │       └── test/
+│           ├── images/
+│           └── captions_test.json
 │
 ├── model/
 │   └── blip_lontara/
@@ -36,62 +41,79 @@ aksara_lontara_blip/
 
 ---
 
-## 🚀 Cara Penggunaan
+## 🚀 Cara Penggunaan (Google Colab)
 
-### 1. Install Library
-```bash
-pip install -r requirements.txt
+### 1. Upload Project ke Google Drive
+Upload folder `ImageCaptioning/` ke Google Drive, misalnya di:
+```
+My Drive/ImageCaptioning/
 ```
 
-### 2. Siapkan Dataset
-```bash
-python 1_prepare_dataset.py
+### 2. Mount Google Drive & Pindah ke Folder Project
+```python
+from google.colab import drive
+drive.mount('/content/drive')
+
+%cd /content/drive/MyDrive/ImageCaptioning
 ```
 
-### 3. Fine-Tuning Model
-```bash
-python 2_train_blip.py
+### 3. Install Library
+```python
+!pip install -r requirements.txt
 ```
 
-### 4. Evaluasi Model
-```bash
-python 3_evaluate.py
+### 4. Siapkan Dataset
+```python
+!python 1_prepare_dataset.py
 ```
 
-### 5. Prediksi Caption (Inference)
-```bash
+### 5. Fine-Tuning Model
+> ⚠️ Pastikan runtime Colab menggunakan **GPU** (Runtime → Change runtime type → GPU)
+```python
+!python 2_train_blip.py
+```
+
+### 6. Evaluasi Model
+```python
+!python 3_evaluate.py
+```
+
+### 7. Prediksi Caption (Inference)
+```python
 # Satu gambar
-python 4_inference.py --image dataset/images/ka/ka_var1.jpg
+!python 4_inference.py --image dataset/processed/test/images/ltr-36.png
 
 # Seluruh folder
-python 4_inference.py --folder dataset/processed/test/images
+!python 4_inference.py --folder dataset/processed/test/images
 
 # Mode demo
-python 4_inference.py --demo
+!python 4_inference.py --demo
 ```
 
 ---
 
 ## 📊 Dataset
 
-| Komponen         | Detail                         |
-|------------------|-------------------------------|
-| Karakter dasar   | 19 aksara Lontara              |
-| Variasi          | 5 per karakter                 |
-| Total gambar     | 95 gambar                      |
-| Caption/gambar   | 5 variasi caption              |
-| Total pasang     | 475 pasang (gambar + caption)  |
-| Split Train/Val/Test | 80% / 10% / 10%           |
+| Komponen             | Detail                                |
+|----------------------|---------------------------------------|
+| Karakter dasar       | 19 aksara Lontara                     |
+| Vokal per karakter   | 5 (a, i, u, e, o)                    |
+| Total gambar         | 95 gambar (ltr-01.png s/d ltr-95.png) |
+| Caption per gambar   | 5 variasi caption                     |
+| Total pasang         | 475 pasang (gambar + caption)         |
+| Split Train/Val/Test | 80% / 10% / 10%                      |
+| Format gambar        | PNG                                   |
 
-### 19 Karakter Aksara Lontara:
+### 19 Karakter Dasar Aksara Lontara:
 `a, ba, ca, da, ga, ha, ja, ka, la, ma, na, nga, nya, pa, ra, sa, ta, wa, ya`
 
-### 5 Variasi per Karakter:
-1. `var1` - Aksara dasar
-2. `var2` - Dengan tanda titik tunggal di atas
-3. `var3` - Dengan tanda dua titik di atas
-4. `var4` - Dengan tanda awalan (sisi kiri)
-5. `var5` - Dengan tanda akhiran (kanan atas)
+### 5 Vokal per Karakter:
+Setiap karakter dasar memiliki 5 varian vokal:
+1. **a** - Vokal dasar (contoh: ba, ca, da)
+2. **i** - Vokal i (contoh: bi, ci, di)
+3. **u** - Vokal u (contoh: bu, cu, du)
+4. **e** - Vokal e (contoh: be, ce, de)
+5. **o** - Vokal o (contoh: bo, co, do)
 
 ---
 
@@ -122,10 +144,11 @@ python 4_inference.py --demo
 
 ## 💡 Tips untuk Tesis S2
 
-1. **Augmentasi data**: Gunakan rotasi, zoom, brightness untuk memperbanyak data
+1. **Augmentasi data**: Gunakan rotasi, zoom, brightness untuk memperbanyak 95 gambar
 2. **Eksperimen**: Bandingkan hasil dengan ViT+GPT-2 sebagai baseline
-3. **Analisis error**: Perhatikan karakter mana yang paling sulit diprediksi
+3. **Analisis error**: Perhatikan karakter dasar mana yang paling sulit diprediksi (lihat BLEU-4 per karakter)
 4. **Ablation study**: Coba variasi jumlah epoch, learning rate, beam size
+5. **Analisis vokal**: Bandingkan akurasi prediksi antar varian vokal (a/i/u/e/o)
 
 ---
 
