@@ -1,5 +1,5 @@
 # Image Captioning Aksara Lontara
-## Fine-Tuning BLIP | Tesis S2
+## Perbandingan BLIP vs GIT vs BLIP-2 | Tesis S2
 
 ---
 
@@ -7,88 +7,80 @@
 
 ```
 ImageCaptioning/
-├── Image_Captioning_Aksara_Lontara.ipynb  → Notebook utama (Google Colab)
-├── requirements.txt                        → Daftar library
+├── training_blip.ipynb       → Fine-tuning BLIP
+├── training_git.ipynb        → Fine-tuning GIT
+├── training_blip2.ipynb      → Fine-tuning BLIP-2 (8-bit)
+├── inference_blip.ipynb      → Inference multi-karakter (BLIP)
+├── inference_git.ipynb       → Inference multi-karakter (GIT)
+├── inference_blip2.ipynb     → Inference multi-karakter (BLIP-2)
+├── requirements.txt
 ├── README.md
 │
 ├── dataset/
-│   ├── images/            → Gambar aksara mentah (95 file PNG)
-│   │   ├── ltr-01.png     → a
-│   │   ├── ltr-02.png     → i
-│   │   ├── ltr-06.png     → ba
-│   │   └── ... (ltr-01 s/d ltr-95)
-│   ├── captions.json      → Caption per gambar (5 caption/gambar)
-│   └── processed/         → Hasil split (dibuat oleh script)
+│   ├── images/               → 95 gambar aksara (PNG)
+│   ├── captions.json         → 5 caption per gambar
+│   └── processed/            → Hasil split (dibuat otomatis)
 │       ├── train/
-│       │   ├── images/
-│       │   └── captions_train.json
 │       ├── val/
-│       │   ├── images/
-│       │   └── captions_val.json
 │       └── test/
-│           ├── images/
-│           └── captions_test.json
 │
-├── model/
-│   └── blip_lontara/
-│       ├── best_model/    → Model terbaik
-│       └── checkpoint_*/  → Checkpoint per epoch
+├── datatest/                 → Gambar uji multi-karakter
 │
-└── hasil_evaluasi/
-    ├── hasil_evaluasi.json
-    └── hasil_inference.json
+├── model/                    → Hasil training (dibuat otomatis)
+│   ├── blip/
+│   │   ├── best_model/
+│   │   └── checkpoint_*/
+│   ├── git/
+│   │   ├── best_model/
+│   │   └── checkpoint_*/
+│   └── blip2/
+│       ├── best_model/
+│       └── checkpoint_*/
+│
+└── hasil_evaluasi/           → Metrik & visualisasi
+    ├── evaluasi_blip.json
+    ├── evaluasi_git.json
+    └── evaluasi_blip2.json
 ```
 
 ---
 
 ## 🚀 Cara Penggunaan (Google Colab)
 
-### 1. Upload Project ke Google Drive
-Upload folder `ImageCaptioning/` ke Google Drive, misalnya di:
+### 1. Upload ke Google Drive
+Upload folder `ImageCaptioning/` ke:
 ```
 My Drive/ImageCaptioning/
 ```
 
-### 2. Mount Google Drive & Pindah ke Folder Project
-```python
-from google.colab import drive
-drive.mount('/content/drive')
+### 2. Training (Jalankan Salah Satu)
 
-%cd /content/drive/MyDrive/ImageCaptioning
-```
+> ⚠️ Pastikan runtime menggunakan **GPU T4** (Runtime → Change runtime type → GPU)
 
-### 3. Install Library
-```python
-!pip install -r requirements.txt
-```
+| Notebook | Model | Waktu ~T4 |
+|----------|-------|-----------|
+| `training_blip.ipynb` | Salesforce/blip-image-captioning-base | ~30 menit |
+| `training_git.ipynb` | microsoft/git-base | ~25 menit |
+| `training_blip2.ipynb` | Salesforce/blip2-opt-2.7b (8-bit) | ~60 menit |
 
-### 4. Siapkan Dataset
-```python
-!python 1_prepare_dataset.py
-```
+Setiap notebook sudah mencakup: setup → dataset → training → evaluasi → simpan ke Drive.
 
-### 5. Fine-Tuning Model
-> ⚠️ Pastikan runtime Colab menggunakan **GPU** (Runtime → Change runtime type → GPU)
-```python
-!python 2_train_blip.py
-```
+### 3. Inference Multi-Karakter
 
-### 6. Evaluasi Model
-```python
-!python 3_evaluate.py
-```
+Setelah training selesai, gunakan notebook inference yang sesuai:
 
-### 7. Prediksi Caption (Inference)
-```python
-# Satu gambar
-!python 4_inference.py --image dataset/processed/test/images/ltr-36.png
+| Notebook | Untuk Model |
+|----------|-------------|
+| `inference_blip.ipynb` | BLIP fine-tuned |
+| `inference_git.ipynb` | GIT fine-tuned |
+| `inference_blip2.ipynb` | BLIP-2 fine-tuned |
 
-# Seluruh folder
-!python 4_inference.py --folder dataset/processed/test/images
-
-# Mode demo
-!python 4_inference.py --demo
-```
+Fitur inference:
+- Deteksi **1–4 karakter** per gambar
+- Vertical Projection Segmentation
+- Canvas 384×384 (konsisten dengan data training)
+- Visualisasi debug (bounding box, projection profile)
+- Batch inference seluruh folder
 
 ---
 
@@ -97,35 +89,31 @@ drive.mount('/content/drive')
 | Komponen             | Detail                                |
 |----------------------|---------------------------------------|
 | Karakter dasar       | 19 aksara Lontara                     |
-| Vokal per karakter   | 5 (a, i, u, e, o)                    |
+| Variasi per karakter | 5 (a, i, u, e, o)                    |
 | Total gambar         | 95 gambar (ltr-01.png s/d ltr-95.png) |
-| Caption per gambar   | 5 variasi caption                     |
+| Caption per gambar   | 5 variasi caption (Bahasa Indonesia)  |
 | Total pasang         | 475 pasang (gambar + caption)         |
-| Split Train/Val/Test | 80% / 10% / 10%                      |
-| Format gambar        | PNG                                   |
+| Split Train/Val/Test | 80% / 10% / 10% (stratified)         |
 
-### 19 Karakter Dasar Aksara Lontara:
+### 19 Karakter Dasar:
 `a, ba, ca, da, ga, ha, ja, ka, la, ma, na, nga, nya, pa, ra, sa, ta, wa, ya`
-
-### 5 Vokal per Karakter:
-Setiap karakter dasar memiliki 5 varian vokal:
-1. **a** - Vokal dasar (contoh: ba, ca, da)
-2. **i** - Vokal i (contoh: bi, ci, di)
-3. **u** - Vokal u (contoh: bu, cu, du)
-4. **e** - Vokal e (contoh: be, ce, de)
-5. **o** - Vokal o (contoh: bo, co, do)
 
 ---
 
 ## 🤖 Model
 
-- **Base Model**: `Salesforce/blip-image-captioning-base`
-- **Task**: Image Captioning (Bahasa Indonesia)
-- **Metode**: Fine-Tuning dengan dataset Aksara Lontara
-- **Image Size**: 384 × 384 px
-- **Optimizer**: AdamW (lr=2e-5)
-- **Epoch**: 20
-- **Batch Size**: 8
+| Model | Base | Parameter | Batch | Teknik Khusus |
+|-------|------|-----------|-------|---------------|
+| BLIP | `Salesforce/blip-image-captioning-base` | ~247M | 8 | Full fine-tune |
+| GIT | `microsoft/git-base` | ~177M | 8 | Full fine-tune |
+| BLIP-2 | `Salesforce/blip2-opt-2.7b` | ~3.7B | 4 | 8-bit quantization, freeze ViT+LLM, tune Q-Former only |
+
+**Konfigurasi training (sama untuk ketiga model):**
+- Image Size: 384×384 px
+- Optimizer: AdamW (lr=2e-5, weight_decay=0.01)
+- Epochs: 20
+- Checkpoint: setiap 5 epoch
+- Scheduler: Linear warmup
 
 ---
 
@@ -140,19 +128,15 @@ Setiap karakter dasar memiliki 5 varian vokal:
 | METEOR   | Mempertimbangkan sinonim & stemming             |
 | ROUGE-L  | Berbasis longest common subsequence             |
 
----
-
-## 💡 Tips untuk Tesis S2
-
-1. **Augmentasi data**: Gunakan rotasi, zoom, brightness untuk memperbanyak 95 gambar
-2. **Eksperimen**: Bandingkan hasil dengan ViT+GPT-2 sebagai baseline
-3. **Analisis error**: Perhatikan karakter dasar mana yang paling sulit diprediksi (lihat BLEU-4 per karakter)
-4. **Ablation study**: Coba variasi jumlah epoch, learning rate, beam size
-5. **Analisis vokal**: Bandingkan akurasi prediksi antar varian vokal (a/i/u/e/o)
+Evaluasi dilakukan terpisah untuk:
+- **Keseluruhan** (semua gambar test)
+- **1 karakter** (gambar tunggal)
+- **2 karakter** (gambar multi-karakter)
 
 ---
 
 ## 📚 Referensi
 
 - Li, J., et al. (2022). BLIP: Bootstrapping Language-Image Pre-training. ICML.
-- Dosovitskiy, A., et al. (2021). An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale. ICLR.
+- Wang, J., et al. (2022). GIT: A Generative Image-to-text Transformer. TMLR.
+- Li, J., et al. (2023). BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models. ICML.
