@@ -1,5 +1,5 @@
 # Image Captioning Aksara Lontara
-## Perbandingan BLIP vs GIT vs BLIP-2 vs OFA | Tesis S2
+## Perbandingan BLIP vs BLIP-2 vs OFA | Tesis S2
 
 ---
 
@@ -8,11 +8,9 @@
 ```
 ImageCaptioning/
 ├── training_blip.ipynb       → Fine-tuning BLIP
-├── training_git.ipynb        → Fine-tuning GIT
 ├── training_blip2.ipynb      → Fine-tuning BLIP-2 (8-bit)
 ├── training_ofa.ipynb        → Fine-tuning OFA
 ├── inference_blip.ipynb      → Inference multi-karakter (BLIP)
-├── inference_git.ipynb       → Inference multi-karakter (GIT)
 ├── inference_blip2.ipynb     → Inference multi-karakter (BLIP-2)
 ├── inference_ofa.ipynb       → Inference multi-karakter (OFA)
 ├── requirements.txt
@@ -32,9 +30,6 @@ ImageCaptioning/
 │   ├── blip/
 │   │   ├── best_model/
 │   │   └── checkpoint_*/
-│   ├── git/
-│   │   ├── best_model/
-│   │   └── checkpoint_*/
 │   ├── blip2/
 │   │   ├── best_model/
 │   │   └── checkpoint_*/
@@ -44,7 +39,6 @@ ImageCaptioning/
 │
 └── hasil_evaluasi/           → Metrik & visualisasi
     ├── evaluasi_blip.json
-    ├── evaluasi_git.json
     ├── evaluasi_blip2.json
     └── evaluasi_ofa.json
 ```
@@ -66,13 +60,12 @@ My Drive/ImageCaptioning/
 | Notebook | Model | Waktu ~T4 |
 |----------|-------|-----------|
 | `training_blip.ipynb` | Salesforce/blip-image-captioning-base | ~30 menit |
-| `training_git.ipynb` | microsoft/git-base | ~25 menit |
 | `training_blip2.ipynb` | Salesforce/blip2-opt-2.7b (8-bit) | ~60 menit |
 | `training_ofa.ipynb` | OFA-Sys/ofa-base | ~30 menit |
 
 Setiap notebook sudah mencakup: setup → dataset → training → evaluasi → simpan ke Drive.
 
-> ⚠️ **Catatan OFA:** OFA belum tersedia di `transformers` resmi. Notebook OFA meng-install **fork** `OFA-Sys/OFA` (branch `feature/add_transformers`) yang menyediakan `OFAModel` & `OFATokenizer`. Instalasi ini mengganti versi `transformers` pada runtime, jadi jalankan notebook OFA pada runtime terpisah dari BLIP/GIT/BLIP-2.
+> ⚠️ **Catatan OFA:** OFA belum tersedia di `transformers` resmi. Notebook OFA meng-install **fork** `OFA-Sys/OFA` (branch `feature/add_transformers`) yang menyediakan `OFAModel` & `OFATokenizer`. Instalasi ini mengganti versi `transformers` pada runtime, jadi jalankan notebook OFA pada runtime terpisah dari BLIP/BLIP-2.
 
 ### 3. Inference Multi-Karakter
 
@@ -81,7 +74,6 @@ Setelah training selesai, gunakan notebook inference yang sesuai:
 | Notebook | Untuk Model |
 |----------|-------------|
 | `inference_blip.ipynb` | BLIP fine-tuned |
-| `inference_git.ipynb` | GIT fine-tuned |
 | `inference_blip2.ipynb` | BLIP-2 fine-tuned |
 | `inference_ofa.ipynb` | OFA fine-tuned |
 
@@ -115,7 +107,6 @@ Fitur inference:
 | Model | Base | Parameter | Batch | Teknik Khusus |
 |-------|------|-----------|-------|---------------|
 | BLIP | `Salesforce/blip-image-captioning-base` | ~247M | 8 | Full fine-tune |
-| GIT | `microsoft/git-base` | ~177M | 8 | Full fine-tune |
 | BLIP-2 | `Salesforce/blip2-opt-2.7b` | ~3.7B | 4 | 8-bit quantization, freeze ViT+LLM, tune Q-Former only |
 | OFA | `OFA-Sys/ofa-base` | ~180M | 8 | Seq2seq, prompt tetap + patch_images, loss CE manual |
 
@@ -149,6 +140,5 @@ Evaluasi dilakukan terpisah untuk:
 ## 📚 Referensi
 
 - Li, J., et al. (2022). BLIP: Bootstrapping Language-Image Pre-training. ICML.
-- Wang, J., et al. (2022). GIT: A Generative Image-to-text Transformer. TMLR.
 - Li, J., et al. (2023). BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models. ICML.
 - Wang, P., et al. (2022). OFA: Unifying Architectures, Tasks, and Modalities Through a Simple Sequence-to-Sequence Learning Framework. ICML.
